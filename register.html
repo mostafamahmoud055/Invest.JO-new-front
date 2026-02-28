@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JEIC 2026 Registration</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script>window.API_BASE_URL='';</script>
+</head>
+<body>
+<div class="app-shell" id="app">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"></span>
+        <span class="brand-copy">JORDAN-EU<br>INVESTMENT<br>CONFERENCE</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#">About</a><a href="#">Agenda</a><a href="#" class="active">Speakers</a><a href="#">Projects</a><a href="#">Meetings</a><a href="#">Tourism</a><a href="#">Sponsors</a><a href="#">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="main-inner">
+      <h1 class="page-title">WELCOME TO JEIC 2026</h1>
+
+      <section class="panel">
+        <template v-if="showLanding">
+          <p class="register-landing-copy">Thank you for your interest in the Jordan-EU Investment Conference. Please review and agree to our data protection policies before proceeding.</p>
+          <div class="data-protection">
+            <h3>Data Protection Notice</h3>
+            <ul>
+              <li>Your personal information will be processed in accordance with applicable data protection regulations.</li>
+              <li>The information collected is used only for conference registration, logistics, and communication.</li>
+              <li>We do not share your data with third parties without consent unless required for event delivery.</li>
+              <li>You can request data deletion at any time.</li>
+            </ul>
+          </div>
+          <div class="start-row">
+            <button class="btn btn-dark" @click="beginApplication">Start Application <span class="btn-icon" v-html="icon('next')"></span></button>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="stepper-wrap">
+            <div class="stepper">
+              <div class="step" v-for="(s,i) in steps" :key="s" :class="stepClass(i)">
+                <span class="dot">{{ i+1 }}</span>
+                <span>{{ s }}</span>
+              </div>
+            </div>
+          </div>
+
+          <section class="form-card">
+            <h2 class="section-header">{{ ['Personal Information','Contact Information','Professional Details','About You','Travel Details'][step] }}</h2>
+
+            <template v-if="step===0">
+              <div class="grid">
+                <div class="field full">
+                  <label>Nationality <span class="req">*</span></label>
+                  <select v-model="form.nationality" @change="clearFieldError('nationality')">
+                    <option value="">Select nationality</option>
+                    <option v-for="n in nationalities" :key="n" :value="n">{{ n }}</option>
+                  </select>
+                  <div class="error" v-if="errors.nationality">{{ errors.nationality }}</div>
+                </div>
+
+                <div class="field full" v-if="form.nationality && !isJordanian">
+                  <label>Passport Copy <span class="hint-inline">(for visa waiver purposes)</span> <span class="req">*</span></label>
+                  <div class="upload-box">
+                    <div class="upload-icon" v-html="icon('upload')"></div>
+                    <div class="upload-title">{{ form.passportCopy ? form.passportCopy.name : 'Click to upload passport image' }}</div>
+                    <div class="upload-sub">JPG, PNG or PDF</div>
+                    <input type="file" accept=".jpg,.jpeg,.png,.pdf" @change="setFile">
+                  </div>
+                  <div class="error" v-if="errors.passportCopy">{{ errors.passportCopy }}</div>
+                </div>
+
+                <div class="field full" v-if="isJordanian">
+                  <label>Full Name</label>
+                  <div class="field-group">
+                    <div class="field"><label>First Name <span class="req">*</span></label><input v-model.trim="form.firstName" placeholder="Enter your first name"><div class="error" v-if="errors.firstName">{{ errors.firstName }}</div></div>
+                    <div class="field"><label>Father's Name <span class="req">*</span></label><input v-model.trim="form.fatherName" placeholder="Enter father's name"><div class="error" v-if="errors.fatherName">{{ errors.fatherName }}</div></div>
+                    <div class="field"><label>Grandfather's Name <span class="req">*</span></label><input v-model.trim="form.grandfatherName" placeholder="Enter grandfather's name"><div class="error" v-if="errors.grandfatherName">{{ errors.grandfatherName }}</div></div>
+                    <div class="field"><label>Family Name <span class="req">*</span></label><input v-model.trim="form.familyName" placeholder="Enter family name"><div class="error" v-if="errors.familyName">{{ errors.familyName }}</div></div>
+                  </div>
+                </div>
+
+                <template v-else-if="form.nationality">
+                  <div class="field"><label>First Name <span class="req">*</span></label><input v-model.trim="form.firstName" placeholder="Enter your first name"><div class="error" v-if="errors.firstName">{{ errors.firstName }}</div></div>
+                  <div class="field"><label>Last Name <span class="req">*</span></label><input v-model.trim="form.lastName" placeholder="Enter your last name"><div class="error" v-if="errors.lastName">{{ errors.lastName }}</div></div>
+                </template>
+
+                <div class="field" v-if="isJordanian">
+                  <label>National Number (10 digits) <span class="req">*</span></label>
+                  <input v-model="form.nationalNumber" inputmode="numeric" maxlength="10" @input="normalizeJordanNumber" placeholder="Enter national number">
+                  <div class="error" v-if="errors.nationalNumber">{{ errors.nationalNumber }}</div>
+                </div>
+              </div>
+            </template>
+
+            <template v-else-if="step===1">
+              <div class="grid">
+                <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" v-model.trim="form.email" placeholder="Enter email address"><div class="error" v-if="errors.email">{{ errors.email }}</div></div>
+                <div class="field"><label>Phone Number <span class="hint-inline">(Optional)</span></label>
+                  <div class="inline-phone"><select v-model="form.phoneCountryCode"><option v-for="c in phoneCodes" :key="c.code" :value="c.code">{{ c.label }}</option></select><input v-model.trim="form.phoneNumber" inputmode="tel" placeholder="Enter phone number"></div>
+                  <div class="error" v-if="errors.phoneNumber">{{ errors.phoneNumber }}</div>
+                </div>
+              </div>
+            </template>
+
+            <template v-else-if="step===2">
+              <div class="grid">
+                <div class="field"><label>Job Title <span class="req">*</span></label><input v-model.trim="form.jobTitle" placeholder="Enter job title"><div class="error" v-if="errors.jobTitle">{{ errors.jobTitle }}</div></div>
+                <div class="field"><label>Entity <span class="req">*</span></label><input v-model.trim="form.entity" placeholder="Enter entity"><div class="error" v-if="errors.entity">{{ errors.entity }}</div></div>
+                <div class="field"><label>Official Website <span class="hint-inline">(Optional)</span></label><input v-model.trim="form.companyWebsite" placeholder="https://www.example.com"><div class="error" v-if="errors.companyWebsite">{{ errors.companyWebsite }}</div></div>
+                <div class="field"><label>Sector <span class="req">*</span></label><select v-model="form.sector"><option value="">Select sector</option><option v-for="s in sectors" :key="s" :value="s">{{ s }}</option></select><div class="error" v-if="errors.sector">{{ errors.sector }}</div></div>
+              </div>
+            </template>
+
+            <template v-else-if="step===3">
+              <div class="grid">
+                <div class="field"><label>Professional Bio <span class="hint-inline">(Optional)</span></label><textarea v-model="form.professionalBio" placeholder="Enter your professional background"></textarea><div class="bio-counter">{{ bioCount }}/3000</div><div class="error" v-if="errors.professionalBio">{{ errors.professionalBio }}</div></div>
+                <div class="field"><label>LinkedIn Profile URL <span class="hint-inline">(Optional)</span></label><input v-model.trim="form.linkedinProfile" placeholder="https://www.linkedin.com/in/your-profile"><div class="error" v-if="errors.linkedinProfile">{{ errors.linkedinProfile }}</div></div>
+              </div>
+            </template>
+
+            <template v-else-if="step===4">
+              <div class="travel-grid">
+                <div class="travel-col">
+                  <p class="subhead">Arrival <span class="req">*</span></p>
+                  <div class="stacked-fields">
+                    <div class="icon-input"><span class="icon" v-html="icon('cal')"></span><input type="date" v-model="form.arrivalDate"></div>
+                    <div class="error" v-if="errors.arrivalDate">{{ errors.arrivalDate }}</div>
+                    <div class="icon-input"><span class="icon" v-html="icon('clock')"></span><input type="time" v-model="form.arrivalTime"></div>
+                    <div class="error" v-if="errors.arrivalTime">{{ errors.arrivalTime }}</div>
+                  </div>
+                  <div class="help" style="margin-top:8px">Queen Alia International Airport (AMM)</div>
+
+                  <div class="field" style="margin-top:14px">
+                    <label>Hotel Name <span class="hint-inline">(if already booked)</span></label>
+                    <input v-model.trim="form.hotelName" placeholder="Enter hotel name">
+                    <div class="error" v-if="errors.hotelName">{{ errors.hotelName }}</div>
+                  </div>
+                </div>
+
+                <div class="travel-col">
+                  <p class="subhead">Departure <span class="req">*</span></p>
+                  <div class="stacked-fields">
+                    <div class="icon-input"><span class="icon" v-html="icon('cal')"></span><input type="date" v-model="form.departureDate"></div>
+                    <div class="error" v-if="errors.departureDate">{{ errors.departureDate }}</div>
+                    <div class="icon-input"><span class="icon" v-html="icon('clock')"></span><input type="time" v-model="form.departureTime"></div>
+                    <div class="error" v-if="errors.departureTime">{{ errors.departureTime }}</div>
+                  </div>
+                  <div class="help" style="margin-top:8px">Queen Alia International Airport (AMM)</div>
+                </div>
+              </div>
+
+              <div class="transfer-box">
+                <strong>Airport Transfer Service</strong>
+                Complimentary pickup and drop-off to Dead Sea
+                <div class="transfer-note">A driver will meet you at the arrivals hall with your name displayed. Travel time approximately 45 minutes</div>
+              </div>
+            </template>
+          </section>
+
+          <div class="error" v-if="submitError" style="margin-top:12px;color:#ffd6d6">{{ submitError }}</div>
+
+          <div class="panel-actions">
+            <div class="left-actions">
+              <button class="btn btn-soft" type="button" @click="prevStep" :disabled="step===0 || loading"><span class="btn-icon" v-html="icon('left')"></span> Back</button>
+              <button class="btn btn-soft" type="button"><span class="btn-icon" v-html="icon('save')"></span> Save &amp; Continue Later</button>
+            </div>
+            <div class="right-actions">
+              <button class="btn btn-outline" type="button">Cancel</button>
+              <button v-if="step<4" class="btn btn-dark" type="button" @click="nextStep" :disabled="loading">Next <span class="btn-icon" v-html="icon('next')"></span></button>
+              <button v-else class="btn btn-dark" type="button" @click="submitForm" :disabled="loading"><span class="btn-icon" v-html="icon('check')"></span> {{ loading ? 'Submitting...' : 'Submit' }}</button>
+            </div>
+          </div>
+        </template>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand"><a class="brand" href="index.html" style="margin-bottom:10px"><span class="brand-mark"></span><span class="brand-copy">JORDAN-EU<br>INVESTMENT<br>CONFERENCE</span></a><p>The premier international investment summit connecting European investors with Jordan's most promising opportunities.</p></div>
+        <div><h4>Quick Links</h4><ul><li><a href="#">About</a></li><li><a href="#">Agenda</a></li><li><a href="#">Speakers</a></li><li><a href="#">Projects</a></li></ul></div>
+        <div><h4>Resources</h4><ul><li><a href="#">Visit Jordan</a></li><li><a href="#">Sponsors</a></li><li><a href="#">FAQs</a></li><li><a href="#">Contact</a></li></ul></div>
+        <div><h4>Contact</h4><ul><li>info@investjo-summit.jo</li><li>+962 6 XXX XXXX</li><li>Dead Sea, Jordan</li></ul></div>
+      </div>
+      <div class="footer-sep">© 2026 Invest.JO Dead Sea Conference. All rights reserved.</div>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="assets/app.js"></script>
+<script>window.mountJEICRegistrationApp('#app',{landing:false,startStep:0});</script>
+</body>
+</html>
