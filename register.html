@@ -6,7 +6,12 @@
   <title>JEIC 2026 Registration</title>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
   <link rel="stylesheet" href="assets/styles.css" />
-  <script>window.API_BASE_URL='';</script>
+  <script>
+    window.API_BASE_URL='';
+    if (window.API_BASE_URL) {
+      window.__VUE_PROD_DEVTOOLS__ = false;
+    }
+  </script>
 </head>
 <body>
 <div class="app-shell" id="app">
