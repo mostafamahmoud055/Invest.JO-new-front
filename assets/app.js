@@ -234,6 +234,10 @@ function iconSvg(kind) {
 }
 window.JEIC_ICONS = iconSvg;
 
+// localStorage keys for autosave
+const LS_FORM_KEY = "jeic_registration_form";
+const LS_STEP_KEY = "jeic_registration_step";
+
 function mountRegistrationApp(
   selector,
   options = { startStep: 0, landing: false },
@@ -302,6 +306,50 @@ function mountRegistrationApp(
       },
       bioCount() {
         return (this.form.professionalBio || "").length;
+      },
+    },
+    mounted() {
+      // Restore saved form data and step from localStorage on page load
+      try {
+        const savedForm = localStorage.getItem(LS_FORM_KEY);
+        const savedStep = localStorage.getItem(LS_STEP_KEY);
+        if (savedForm) {
+          const parsedForm = JSON.parse(savedForm);
+          // passportCopy is a File object and cannot be serialized — skip restoring it
+          parsedForm.passportCopy = null;
+          Object.assign(this.form, parsedForm);
+        }
+        if (savedStep !== null) {
+          const parsedStep = parseInt(savedStep, 10);
+          if (!isNaN(parsedStep) && parsedStep >= 0 && parsedStep <= 4) {
+            this.step = parsedStep;
+          }
+        }
+      } catch (e) {
+        // If restore fails for any reason, continue normally
+      }
+    },
+    watch: {
+      // Autosave form data to localStorage on every change
+      form: {
+        deep: true,
+        handler(newForm) {
+          try {
+            // Exclude passportCopy (File object) from serialization
+            const formToSave = { ...newForm, passportCopy: null };
+            localStorage.setItem(LS_FORM_KEY, JSON.stringify(formToSave));
+          } catch (e) {
+            // If save fails (e.g. storage quota), continue silently
+          }
+        },
+      },
+      // Autosave current step to localStorage on every change
+      step(newStep) {
+        try {
+          localStorage.setItem(LS_STEP_KEY, String(newStep));
+        } catch (e) {
+          // If save fails, continue silently
+        }
       },
     },
     methods: {
@@ -490,6 +538,11 @@ function mountRegistrationApp(
           // }
           this.serverMessage =
             data?.message || "Application submitted successfully";
+          // Clear registration-related localStorage keys on successful submission
+          try {
+            localStorage.removeItem(LS_FORM_KEY);
+            localStorage.removeItem(LS_STEP_KEY);
+          } catch {}
           try {
             sessionStorage.setItem("jeic_success_message", this.serverMessage);
           } catch {}
