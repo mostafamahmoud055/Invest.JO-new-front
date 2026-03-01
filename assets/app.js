@@ -431,16 +431,16 @@ function mountRegistrationApp(
           )
             e.linkedinProfile = "Use full URL (http:// or https://).";
         }
-        if (this.step === 4) {
-          if (!this.form.arrivalDate)
-            e.arrivalDate = "Date of Arrival is required.";
-          if (!this.form.arrivalTime)
-            e.arrivalTime = "Time of Arrival is required.";
-          if (!this.form.departureDate)
-            e.departureDate = "Date of Departure is required.";
-          if (!this.form.departureTime)
-            e.departureTime = "Time of Departure is required.";
-        }
+        // if (this.step === 4) {
+        //   if (!this.form.arrivalDate)
+        //     e.arrivalDate = "Date of Arrival is required.";
+        //   if (!this.form.arrivalTime)
+        //     e.arrivalTime = "Time of Arrival is required.";
+        //   if (!this.form.departureDate)
+        //     e.departureDate = "Date of Departure is required.";
+        //   if (!this.form.departureTime)
+        //     e.departureTime = "Time of Departure is required.";
+        // }
         this.errors = e;
         return Object.keys(e).length === 0;
       },
