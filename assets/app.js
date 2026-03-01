@@ -245,8 +245,8 @@ function mountRegistrationApp(
   createApp({
     data() {
       return {
-        // apiBaseUrl: 'http://194.163.172.255/', // set in index.html or backend template
-      apiBaseUrl: 'http://127.0.0.1:8000', // set in index.html or backend template
+        apiBaseUrl: 'http://localhost/', // set in index.html or backend template
+      // apiBaseUrl: 'http://127.0.0.1:8000', // set in index.html or backend template
         loading: false,
         submitted: false,
         submitError: "",
@@ -497,45 +497,45 @@ function mountRegistrationApp(
         try {
           const endpoint =
             (this.apiBaseUrl || "").replace(/\/$/, "") + "/api/register";
-          // const res = await fetch(endpoint, {
-          //   method: "POST",
-          //   body: this.buildFormData(),
-          // });
-          const res = true;
+          const res = await fetch(endpoint, {
+            method: "POST",
+            body: this.buildFormData(),
+          });
+          // const res = true;
           let data = null;
           try {
             data = await res.json();
           } catch {}
-          // if (!res.ok) {
-          //   if (data?.errors && typeof data.errors === "object") {
-          //     const map = {
-          //       first_name: "firstName",
-          //       father_name: "fatherName",
-          //       grandfather_name: "grandfatherName",
-          //       family_name: "familyName",
-          //       national_number: "nationalNumber",
-          //       last_name: "lastName",
-          //       passport_copy: "passportCopy",
-          //       phone_country_code: "phoneCountryCode",
-          //       phone_number: "phoneNumber",
-          //       job_title: "jobTitle",
-          //       company_website: "companyWebsite",
-          //       professional_bio: "professionalBio",
-          //       linkedin_profile: "linkedinProfile",
-          //       arrival_date: "arrivalDate",
-          //       arrival_time: "arrivalTime",
-          //       departure_date: "departureDate",
-          //       departure_time: "departureTime",
-          //       hotel_name: "hotelName",
-          //     };
-          //     const merged = { ...this.errors };
-          //     for (const [k, v] of Object.entries(data.errors)) {
-          //       merged[map[k] || k] = Array.isArray(v) ? v[0] : String(v);
-          //     }
-          //     this.errors = merged;
-          //   }
-          //   throw new Error(data?.message || "Submission failed");
-          // }
+          if (!res.ok) {
+            if (data?.errors && typeof data.errors === "object") {
+              const map = {
+                first_name: "firstName",
+                father_name: "fatherName",
+                grandfather_name: "grandfatherName",
+                family_name: "familyName",
+                national_number: "nationalNumber",
+                last_name: "lastName",
+                passport_copy: "passportCopy",
+                phone_country_code: "phoneCountryCode",
+                phone_number: "phoneNumber",
+                job_title: "jobTitle",
+                company_website: "companyWebsite",
+                professional_bio: "professionalBio",
+                linkedin_profile: "linkedinProfile",
+                arrival_date: "arrivalDate",
+                arrival_time: "arrivalTime",
+                departure_date: "departureDate",
+                departure_time: "departureTime",
+                hotel_name: "hotelName",
+              };
+              const merged = { ...this.errors };
+              for (const [k, v] of Object.entries(data.errors)) {
+                merged[map[k] || k] = Array.isArray(v) ? v[0] : String(v);
+              }
+              this.errors = merged;
+            }
+            throw new Error(data?.message || "Submission failed");
+          }
           this.serverMessage =
             data?.message || "Application submitted successfully";
           // Clear registration-related localStorage keys on successful submission
