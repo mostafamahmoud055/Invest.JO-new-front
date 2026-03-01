@@ -245,8 +245,8 @@ function mountRegistrationApp(
   createApp({
     data() {
       return {
-        apiBaseUrl: 'http://185.187.170.151/', // set in index.html or backend template
-      // apiBaseUrl: 'http://127.0.0.1:8000', // set in index.html or backend template
+        apiBaseUrl: 'http://185.187.170.151/api', // set in index.html or backend template
+      // apiBaseUrl: 'http://127.0.0.1:8000/api', // set in index.html or backend template
         loading: false,
         submitted: false,
         submitError: "",
@@ -496,7 +496,7 @@ function mountRegistrationApp(
         this.serverMessage = "";
         try {
           const endpoint =
-            (this.apiBaseUrl || "").replace(/\/$/, "") + "/api/register";
+            (this.apiBaseUrl || "").replace(/\/$/, "") + "/register";
           const res = await fetch(endpoint, {
             method: "POST",
             body: this.buildFormData(),
