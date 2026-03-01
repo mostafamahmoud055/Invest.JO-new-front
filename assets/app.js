@@ -245,7 +245,7 @@ function mountRegistrationApp(
   createApp({
     data() {
       return {
-        apiBaseUrl: 'http://localhost/', // set in index.html or backend template
+        apiBaseUrl: 'http://185.187.170.151/', // set in index.html or backend template
       // apiBaseUrl: 'http://127.0.0.1:8000', // set in index.html or backend template
         loading: false,
         submitted: false,
